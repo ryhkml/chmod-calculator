@@ -4,19 +4,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"text/tabwriter"
 )
 
 func main() {
 	args := os.Args
 	if len(args) > 2 {
-		fmt.Println("Enter one argument only")
-		os.Exit(1)
+		panic("Enter one argument only")
 	}
 
 	arg := args[1]
 	if len(arg) > 9 {
-		fmt.Println("Arg are too long")
-		os.Exit(1)
+		panic("Arguments are too long")
 	}
 
 	if arg == "help" {
@@ -41,16 +40,13 @@ func main() {
 		x := string(arg[i*3+2])
 		for i, permission := range []string{r, w, x} {
 			if i == 0 && permission != "r" && permission != "-" {
-				fmt.Println("Invalid read permission")
-				os.Exit(1)
+				panic("Invalid read permission")
 			}
 			if i == 1 && permission != "w" && permission != "-" {
-				fmt.Println("Invalid write permission")
-				os.Exit(1)
+				panic("Invalid write permission")
 			}
 			if i == 2 && permission != "x" && permission != "-" {
-				fmt.Println("Invalid execute permission")
-				os.Exit(1)
+				panic("Invalid execute permission")
 			}
 		}
 		switch i {
@@ -99,4 +95,19 @@ example:
   chmod-calculator --x
   chmod-calculator rwxrw-rw-
   `)
+
+	writer := tabwriter.NewWriter(os.Stdout, 4, 4, 4, ' ', 0)
+
+	fmt.Println("Numerical Permissions")
+	fmt.Fprintln(writer, "Sum\tMode\tPermission\t")
+	fmt.Fprintln(writer, "4 + 2 + 1\trwx\tread, write, and execute\t")
+	fmt.Fprintln(writer, "4 + 2    \trw-\tread and write\t")
+	fmt.Fprintln(writer, "4     + 1\tr-x\tread and execute\t")
+	fmt.Fprintln(writer, "4        \tr--\tread only\t")
+	fmt.Fprintln(writer, "    2 + 1\t-wx\twrite and execute\t")
+	fmt.Fprintln(writer, "    2    \t-w-\twrite only\t")
+	fmt.Fprintln(writer, "        1\t--x\texecute only\t")
+	fmt.Fprintln(writer, "0        \t---\tnone\t")
+
+	writer.Flush()
 }
